@@ -2,7 +2,7 @@
 set -e
 
 HOOK_NAME=$(basename $0)
-CHARM_NAME=charm-name
+CHARM_NAME=errbit
 
 if [[ "$HOOK_NAME" == *-relation-* ]]; then
   COOKBOOK_NAME="${HOOK_NAME%-relation*}-relation"

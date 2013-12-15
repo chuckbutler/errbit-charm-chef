@@ -1,16 +1,13 @@
-name: charm-name
-summary: <Fill in summary here>
-maintainer: Full Name <email@example.com>
+name: errbit
+summary: errbit is an open source exception catcher
+maintainer: Charles Butler <chuck@dasroot.net>
 description: |
   <Multi-line description here>
 categories:
-  - misc
+  - application
 provides:
-  relation-name:
-    interface: interface-name
+    errbit:
+        interface: airbrake
 requires:
-  relation-name:
-    interface: interface-name
-peers:
-  relation-name:
-    interface: interface-name
+    database:
+        interface: mongodb

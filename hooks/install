@@ -2,4 +2,5 @@
 set -e
 
 source $(dirname $0)/bootstrap
+return 1
 source $(dirname $0)/stub
