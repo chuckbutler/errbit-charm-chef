@@ -13,3 +13,6 @@ if [ ! -f "/home/errbit/errbit/.strapped" ]; then
   touch .strapped
 fi
 
+
+RAILS_ENV=production bundle exec rake assets:clean
+RAILS_ENV=production bundle exec rake assets:precompile

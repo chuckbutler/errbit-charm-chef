@@ -1,0 +1,5 @@
+description "Errbit Application Stack"
+author "Charles Butler <chuck@dasroot.net>"
+
+start on (local-filesystems and net-device-up IFACE!=lo)
+stop on runlevel [06]

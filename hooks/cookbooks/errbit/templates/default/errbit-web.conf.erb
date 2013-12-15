@@ -1,0 +1,16 @@
+description "Errbit Webs"
+author "Charles Butler <chuck@dasroot.net>"
+
+start on starting errbit
+stop on stopping errbit
+
+respawn
+respawn limit 3 30
+
+chdir /home/errbit/errbit
+
+setuid errbit
+setgid errbit
+
+exec bundle exec unicorn_rails -E production
+
