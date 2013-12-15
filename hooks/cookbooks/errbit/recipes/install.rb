@@ -24,7 +24,6 @@ package "libxml2-dev" do
   action :install
 end
 
-
 user "errbit" do
   shell "/bin/bash"
   home "/home/errbit"
@@ -33,7 +32,6 @@ user "errbit" do
   action :create
   uid 3000
 end
-
 
 git "/home/errbit/errbit" do
   repository config_get['repository']
@@ -66,7 +64,35 @@ template "/home/errbit/errbit/config/mongoid.yml" do
   source "mongoid.yml.erb"
 end
 
-#Prep the hack script to circumvent chef's personality conflicts
+#delete existing upstart templates if they exist
+template "/etc/init/errbit.conf" do
+  action :delete
+end
+
+template "/etc/init/errbit-web.conf" do
+  action :delete
+end
+
+#setup upstart template
+template "/etc/init/errbit.conf" do
+  action :create
+  owner 'root'
+  group 'root'
+  mode '0644'
+  source 'errbit.conf.erb'
+end
+
+template "/etc/init/errbit-web.conf" do
+  action :create
+  owner 'root'
+  group 'root'
+  mode '0644'
+  source 'errbit-web.conf.erb'
+end
+
+
+
+#Prep the post-deployment script to circumvent chef's personality conflicts
 template "/tmp/bundler.sh" do
   action :create
   owner 'errbit'
@@ -74,8 +100,6 @@ template "/tmp/bundler.sh" do
   mode 0777
   source 'bundler.sh.erb'
 end
-
-
 
 directory "/home/errbit/errbit" do
   owner "errbit"
@@ -86,5 +110,4 @@ end
 execute "chown -R errbit:errbit /home/errbit/errbit" do
   action :run
 end
-
 
