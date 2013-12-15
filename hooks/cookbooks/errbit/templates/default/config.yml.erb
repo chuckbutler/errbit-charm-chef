@@ -1,0 +1,35 @@
+# Errbit Config
+# =============
+# an email notification.
+email_at_notices: [1, 10, 100]
+
+# Configure whether or not the user should be prompted before resolving an error.
+confirm_resolve_err: true
+
+# Add an optional 'username' field to Users.
+# Helpful when you need to plug in a custom authentication strategy, such as LDAP.
+user_has_username: false
+
+# Allow comments while an issue tracker is configured.
+# This is useful if the err is not critical enough to create a ticket,
+# but you want to leave a short comment.
+allow_comments_with_issue_tracker: true
+
+# Enable Gravatar.
+use_gravatar: true
+# Default Gravatar image, can be: mm, identicon, monsterid, wavatar, retro.
+gravatar_default: <%= @gravatar %>
+
+
+# Configure SMTP settings. If you are running Errbit on Heroku,
+# sendgrid will be configured by default.
+# ------------------------------------------------------------------------
+smtp_settings:
+  :address:              <%= @smtp_host %>
+  :domain:               <%= @smtp_domain %>
+  :port:                 "<%= @smtp_port %>"
+  :authentication:       :plain, :login, :cram_md5
+  :enable_starttls_auto: <%= @smtp_starttls_auto %>
+  :user_name:            <%= @smtp_user %> 
+  :password:             <%= @smtp_pass %>
+

@@ -1,0 +1,15 @@
+#!/bin/bash
+
+cd /home/errbit/errbit
+/usr/local/bin/bundle install --without test --deployment
+
+
+if [ ! -f "/home/errbit/errbit/config/initializers/secret_token.rb" ]; then
+  echo "Errbit::Application.config.secret_token = '$(bundle exec rake secret)'" > config/initializers/secret_token.rb
+fi
+
+if [ ! -f "/home/errbit/errbit/.strapped" ]; then
+  RAILS_ENV=production bundle exec rake errbit:bootstrap
+  touch .strapped
+fi
+

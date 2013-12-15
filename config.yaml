@@ -1,0 +1,41 @@
+options:
+  repository:
+    type: string
+    default: "https://github.com/errbit/errbit.git"
+    description: "Fully qualified git url to repository of Errbit application"
+  release:
+    type: string
+    default: "v0.2.0"
+    description: "Git tag (release) or branch of Errbit repository. See README.md for additional details"
+  smtp_host:
+    type: string
+    default: "localhost"
+    description: "Fully qualified url to your SMTP server"
+  smtp_domain:
+    type: string
+    default: "localhost"
+    description: "Domain to send emails from" 
+  smtp_port:
+    type: int
+    default: 25
+    description: "SMTP Port"
+  smtp_user:
+    type: string
+    default: "errbit@localhost"
+    description: "SMTP User to login to the SMTP Server and send email from"
+  smtp_pass:
+    type: string
+    default: ""
+    description: "SMTP Password"
+  smtp_starttls_auto:
+    type: boolean
+    default: true
+    description: "Start TLS authentication automatically"
+  gravatar:
+    type: string
+    default: "identicon"
+    description: "Gravatar Image Set. Options are:  mm, identicon, monsterid, wavatar, or retro"
+  hostname:
+    type: string
+    default: ""
+    description: "Hostname used to access errbit"
