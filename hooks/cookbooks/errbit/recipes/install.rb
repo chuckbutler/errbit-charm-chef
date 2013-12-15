@@ -59,6 +59,13 @@ template "/home/errbit/errbit/config/config.yml" do
    })
 end
 
+template "/home/errbit/errbit/config/mongoid.yml" do
+  owner "errbit"
+  group "errbit"
+  mode "0660"
+  source "mongoid.yml.erb"
+end
+
 #Prep the hack script to circumvent chef's personality conflicts
 template "/tmp/bundler.sh" do
   action :create
