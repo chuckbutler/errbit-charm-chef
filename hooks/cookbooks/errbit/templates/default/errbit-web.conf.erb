@@ -12,5 +12,5 @@ chdir /home/errbit/errbit
 setuid errbit
 setgid errbit
 
-exec bundle exec unicorn_rails -E production
+exec bundle exec unicorn_rails -E production -c config/unicorn.rb
 

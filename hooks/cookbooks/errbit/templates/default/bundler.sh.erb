@@ -1,14 +1,21 @@
 #!/bin/bash
 
-cd /home/errbit/errbit
+ERRBIT_PATH='/home/errbit/errbit'
+
+cd $ERRBIT_PATH
 /usr/local/bin/bundle install --without test --deployment
 
 
-if [ ! -f "/home/errbit/errbit/config/initializers/secret_token.rb" ]; then
-  echo "Errbit::Application.config.secret_token = '$(bundle exec rake secret)'" > config/initializers/secret_token.rb
+#TODO make this cross-unit compliant so they can share the token
+
+if [ ! -f "$ERRBIT_PATH/config/initializers/secret_token.rb" ]; then
+  juju-log "Generating secret token"	
+  echo "Errbit::Application.config.secret_token = '$(bundle exec rake secret)'" > \
+        $ERRBIT_PATH/config/initializers/secret_token.rb
 fi
 
-if [ ! -f "/home/errbit/errbit/.strapped" ]; then
+
+if [ ! -f "$ERRBIT_PATH/.strapped" ]; then
   RAILS_ENV=production bundle exec rake errbit:bootstrap
   touch .strapped
 fi

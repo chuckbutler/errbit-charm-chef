@@ -1,0 +1,15 @@
+#!/bin/bash
+set -e
+
+source $(dirname $0)/stub
+
+# TODO: Move this into the chef install hook
+# Reason why this is here: Chef is locking all actions into the charm directory
+# and not respecting CWD directives, or shell out code.
+
+#circumvent chef's idocyncracies
+su errbit -c /tmp/bundler.sh
+
+$CHARM_DIR/hooks/stop
+$CHARM_DIR/hooks/start
+

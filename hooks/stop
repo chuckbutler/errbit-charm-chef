@@ -1,1 +1,5 @@
-stub
+#!/bin/bash
+
+set -ex
+
+stop errbit || true

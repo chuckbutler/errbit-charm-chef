@@ -39,3 +39,11 @@ options:
     type: string
     default: ""
     description: "Hostname used to access errbit"
+  unicorn_workers:
+    type: int
+    default: 3
+    description: "Number of unicorn workers"
+  debug:
+    type: boolean
+    default: false
+    description: "Enable debug level output from chef provisioner"

@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+DEBUG=`config-get debug`
+
 HOOK_NAME=$(basename $0)
 CHARM_NAME=errbit
 
@@ -12,4 +14,9 @@ else
   RECIPE_NAME=$HOOK_NAME
 fi
 
-cd "$(dirname $0)" && bundle exec chef-solo -o "recipe[$COOKBOOK_NAME::$RECIPE_NAME]"
+#todo remove debug logging
+if [ $DEBUG = "true" ]; then
+  cd "$(dirname $0)" && bundle exec chef-solo -l debug -o "recipe[$COOKBOOK_NAME::$RECIPE_NAME]"
+else
+  cd "$(dirname $0)" && bundle exec chef-solo -o "recipe[$COOKBOOK_NAME::$RECIPE_NAME]"
+fi
