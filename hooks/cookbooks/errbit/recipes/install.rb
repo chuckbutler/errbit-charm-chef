@@ -42,9 +42,13 @@ git "/home/errbit/errbit" do
   reference config_get['release']
   action :sync
 end
+
+
 juju_port 80 do
   action :open
 end
+
+
 
 #directory "/home/errbit/errbit" do
 #  owner "errbit"

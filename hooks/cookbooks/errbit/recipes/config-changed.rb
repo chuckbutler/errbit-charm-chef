@@ -22,7 +22,7 @@ template "/home/errbit/errbit/config/mongoid.yml" do
   group "errbit"
   mode "0660"
   source "mongoid.yml.erb"
-  variables({ mongo_uri: "mongodb://localhost:271017/errbit" })
+  variables({ mongo_uri: "mongodb://localhost:27017/errbit" })
 end
 
 #delete existing upstart templates if they exist
