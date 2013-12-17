@@ -1,7 +1,7 @@
-maintainer       "Altoros Systems, Inc."
-maintainer_email "pavel.pachkovskij@altoros.com"
+maintainer       "Charles Butler"
+maintainer_email "chuck@dasroot.net"
 license          "GPL-3"
-description      "JuJu Helpers"
+description      "MongoDB Relation"
 
 version          "0.1"
 name             "relation-name-relation"
