@@ -8,9 +8,8 @@
 # to place production specific settings there
 
 defaults: &defaults
-  host: localhost
   identity_map_enabled: true
-  database: errbit
+  uri: <%= @mongo_uri %>
 
 development:
   <<: *defaults
