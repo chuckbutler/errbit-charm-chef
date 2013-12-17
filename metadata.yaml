@@ -9,5 +9,6 @@ provides:
     errbit:
         interface: airbrake
 requires:
-    database:
+    mongodb:
         interface: mongodb
+        optional: true
