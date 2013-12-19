@@ -2,12 +2,13 @@
 
 set -ex
 
+
 #We have a new database joining the group. If we have MongoDB installed, dump its contents
 
-if [ ! -d "$CHARMDIR/mongodata" ]; then
-  mkdir $CHARMDIR/mongodata
+if [ ! -d "$CHARM_DIR/mongodata" ]; then
+  mkdir $CHARM_DIR/mongodata
 fi
 
-juju-log "Dumping MongoDb databases to $CHARMDIR/mongodata"
+juju-log "Dumping MongoDb databases to $CHARM_DIR/mongodata"
 
-mongodump -h localhost $CHARMDIR/mongo-data
+mongodump -h localhost -d errbit -o $CHARM_DIR/mongo-data
