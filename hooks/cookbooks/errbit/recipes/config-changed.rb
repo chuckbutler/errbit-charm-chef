@@ -17,12 +17,14 @@ template "/home/errbit/errbit/config/config.yml" do
    })
 end
 
-template "/home/errbit/errbit/config/mongoid.yml" do
-  owner "errbit"
-  group "errbit"
-  mode "0660"
-  source "mongoid.yml.erb"
-end
+  template "/home/errbit/errbit/config/mongoid.yml" do
+    owner "errbit"
+    group "errbit"
+    mode "0660"
+    source "mongoid.yml.erb"
+    variables({ mongo_uri: "mongodb://localhost:27017/errbit" })
+    not_if { File.exists?("$CHARM_DIR/.mongodb") }
+  end
 
 #delete existing upstart templates if they exist
 template "/etc/init/errbit.conf" do

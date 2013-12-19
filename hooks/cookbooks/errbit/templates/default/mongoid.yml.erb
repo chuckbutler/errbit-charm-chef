@@ -1,23 +1,20 @@
-# Mongoid Configuration
-# =====================
-#
-# Copy this file to config/mongoid.yml and
-# modify it accordingly. This file will automatically
-# be copied to shared/config on the server when
-# `cap deploy:setup` is ran the first time. Be sure
-# to place production specific settings there
+options: &options
+  paramterize_keys: false
 
 defaults: &defaults
   host: localhost
-  identity_map_enabled: true
-  database: errbit
 
 development:
   <<: *defaults
+  <<: *options
+  database: errbit_dev
 
 test:
   <<: *defaults
+  <<: *options
 
 production:
-  <<: *defaults
+  <<: *options
+  uri: <%= @mongo_uri %>
+  database: errbit
 
