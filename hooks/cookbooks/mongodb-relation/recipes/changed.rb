@@ -27,7 +27,7 @@ else
 
   #deploy the backup data
   execute "mongorestore" do
-    command "mongorestore -h #{relation_get['hostname']} -d errbit $CHARM_DIR/mongo-data/errbit/"
+    command "mongorestore -h #{relation_get['hostname']} -d errbit /mnt/mongo-data/errbit/"
   end
 
   service 'errbit' do

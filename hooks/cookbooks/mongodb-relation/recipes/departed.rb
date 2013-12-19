@@ -1,12 +1,32 @@
  
-package "mongodb-10gen" do
+  package "mongodb-10gen" do
    action :install
   end
 
 
+mongodb = {
+  host: relation_get['hostname'],
+  port: relation_get['port'],
+  database: 'errbit' 
+ }
+
+  directory "/mnt/mongo-data" do
+    action :create
+    mode '0750'
+  end
+
+  #deploy the backup data
+  execute "mongodump" do
+    command "mongodump -h #{relation_get['hostname']} --port #{relation_get['port']}  -d errbit -o /mnt/mongo-data/errbit/"
+    action :nothing
+  end
+
+
+
+
   #deploy the backup data
   execute "mongorestore" do
-    command "mongorestore -h localhost -d errbit $CHARM_DIR/mongo-data/errbit/"
+    command "mongorestore -h localhost -d errbit /mnt/mongo-data/errbit/"
   end
 
 

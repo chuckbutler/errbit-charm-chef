@@ -1,14 +1,1 @@
-#!/bin/bash
-
-set -ex
-
-
-#We have a new database joining the group. If we have MongoDB installed, dump its contents
-
-if [ ! -d "$CHARM_DIR/mongodata" ]; then
-  mkdir $CHARM_DIR/mongodata
-fi
-
-juju-log "Dumping MongoDb databases to $CHARM_DIR/mongodata"
-
-mongodump -h localhost -d errbit -o $CHARM_DIR/mongo-data
+stub
