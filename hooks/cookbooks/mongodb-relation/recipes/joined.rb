@@ -1,6 +1,7 @@
 
 directory "mnt/mongo-data" do
   action :delete
+  recursive true
 end
 
 directory "/mnt/mongo-data" do
