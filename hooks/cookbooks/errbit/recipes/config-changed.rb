@@ -1,4 +1,9 @@
 
+class Chef::Recipe
+  include AssetHelper
+end
+
+
 #drop the templates
 template node[:errbit][:path] + "/config/config.yml" do
   owner "errbit"
@@ -77,6 +82,10 @@ template "/etc/nginx/sites-available/errbit" do
   })
 end
 
+execute "service nginx reload" do
+  action :run
+end
+
 link "/etc/nginx/sites-enabled/errbit" do
   action :create
   to "/etc/nginx/sites-available/errbit"
@@ -112,7 +121,6 @@ bash "bundle_deploy" do
   code "/usr/bin/env bundle install --without test --deployment"
 end
 
-
 execute "generate_secret_token" do
   user "root"
   cwd node[:errbit][:path]
@@ -131,7 +139,7 @@ template node[:errbit][:path] + "/config/initializers/secret_token.rb" do
     })
 end
 
-execute "Bootstrap errbit" do
+execute "bootstrap_errbit" do
   user "errbit"
   cwd node[:errbit][:path]
   action :run
@@ -140,11 +148,11 @@ execute "Bootstrap errbit" do
   creates node[:errbit][:path] + "/.strapped"
 end
 
-execute "recompile_assets" do
-  user "errbit"
-  cwd node[:errbit][:path]
-  command "bundle exec rake assets:clean && bundle exec rake assets:precompile"
-  environment ({'RAILS_ENV' => 'production'})
-  ignore_failure true
-end
 
+
+recompile_assets()
+
+execute "cache_git_revision" do
+    command "cd #{node[:errbit][:path]} && git rev-parse HEAD > #{ENV['CHARM_DIR']}/errbit_revision"
+    action :run
+end
