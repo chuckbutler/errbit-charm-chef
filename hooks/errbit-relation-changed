@@ -7,7 +7,7 @@ new_token=`relation-get secret-token`
 
 if [ -z "$new_token" ]; then
 	if [ -f $CHARM_DIR/secret_token ]; then
-		juju-log "Sending my token for consideration"
+		juju_log "Sending my token for consideration"
     	relation-set secret-token=`cat $CHARM_DIR/secret_token`
 	fi
 else

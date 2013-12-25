@@ -10,7 +10,7 @@ mongodb = {
 # if we cannot find the relationship details.
 
 if [:host, :port].any? { |attr| mongodb[attr].nil? || mongodb[attr].empty? }
-  juju-log("Waiting for all attributes to be set")
+  juju_log("Waiting for all attributes to be set")
 else
  
   template "/home/errbit/errbit/config/mongoid.yml" do
