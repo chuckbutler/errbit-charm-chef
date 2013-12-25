@@ -28,6 +28,11 @@ package "nginx" do
   action :install
 end
 
+execute "service nginx start" do
+  action :run
+end
+
+
 package "sendmail" do
   action :install
 end
@@ -47,20 +52,10 @@ git "/home/errbit/errbit" do
   action :sync
 end
 
-
-juju_port 80 do
-  action :open
-end
-
-
-
-#directory "/home/errbit/errbit" do
-#  owner "errbit"
-#  group "errbit"
-#  recursive true
-#end
-
 execute "chown -R errbit:errbit /home/errbit/errbit" do
   action :run
 end
 
+juju_port "80" do
+  action :open
+end
