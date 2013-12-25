@@ -24,6 +24,7 @@ gravatar_default: <%= @gravatar %>
 # Configure SMTP settings. If you are running Errbit on Heroku,
 # sendgrid will be configured by default.
 # ------------------------------------------------------------------------
+<% if @sendmail == false %>
 smtp_settings:
   :address:              <%= @smtp_host %>
   :domain:               <%= @smtp_domain %>
@@ -32,4 +33,9 @@ smtp_settings:
   :enable_starttls_auto: <%= @smtp_starttls_auto %>
   :user_name:            <%= @smtp_user %> 
   :password:             <%= @smtp_pass %>
-
+<% else %>
+# If you want send your email by your sendmail
+sendmail_settings:
+ :location: '/usr/sbin/sendmail'
+ :arguments: '-i -t'
+<% end %>
