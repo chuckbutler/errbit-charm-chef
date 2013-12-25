@@ -40,8 +40,8 @@ else
     action :purge
   end
  
-  execute "touch $CHARM_DIR/.mongodb" do
-    action :nothing
+  execute "touch $CHARM_DIR/mongodb" do
+    action :run
   end
 
 end
