@@ -16,7 +16,7 @@ fi
 
 #todo remove debug logging
 if [ $DEBUG = "true" ]; then
-  cd "$(dirname $0)" && bundle exec chef-solo -l debug -o "recipe[$COOKBOOK_NAME::$RECIPE_NAME]"
+  cd "$(dirname $0)" && chef-solo -l debug -o "recipe[$COOKBOOK_NAME::$RECIPE_NAME]"
 else
-  cd "$(dirname $0)" && bundle exec chef-solo -o "recipe[$COOKBOOK_NAME::$RECIPE_NAME]"
+  cd "$(dirname $0)" && chef-solo -o "recipe[$COOKBOOK_NAME::$RECIPE_NAME]"
 fi
