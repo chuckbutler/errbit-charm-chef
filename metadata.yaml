@@ -2,13 +2,18 @@ name: errbit
 summary: errbit is an open source exception catcher
 maintainer: Charles Butler <chuck@dasroot.net>
 description: |
-  <Multi-line description here>
+  Errbit is a tool for collecting and managing errors from other applications.
+  It is Airbrake (formerly known as Hoptoad) API compliant, so if you are already 
+  using Airbrake, you can just point the airbrake gem to your Errbit server. 
 categories:
   - application
 provides:
-    errbit:
+    airbrake:
         interface: airbrake
 requires:
     mongodb:
         interface: mongodb
         optional: true
+peers:
+  errbit:
+    interface: errbit
