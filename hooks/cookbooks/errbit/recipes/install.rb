@@ -24,9 +24,35 @@ package "libxml2-dev" do
   action :install
 end
 
+
+
 package "nginx" do
   action :install
 end
+
+#TODO: document that we remove the default nginx vhost
+link "/etc/nginx/sites-enabled/default" do
+  action :delete
+end
+
+#setup the NGINX configuration
+template "/etc/nginx/sites-available/errbit" do
+  action :create
+  owner 'root'
+  group 'root'
+  mode 0644
+  source 'errbit-nginx.erb'
+  variables({
+    hostname: config_get['hostname']
+  })
+end
+
+
+link "/etc/nginx/sites-enabled/errbit" do
+  action :create
+  to "/etc/nginx/sites-available/errbit"
+end
+
 
 execute "service nginx start" do
   action :run

@@ -77,6 +77,23 @@ execute "cache_git_revision" do
 end
 
 
+#setup the NGINX configuration
+template "/etc/nginx/sites-available/errbit" do
+  action :create
+  owner 'root'
+  group 'root'
+  mode 0644
+  source 'errbit-nginx.erb'
+  variables({
+    hostname: config_get['hostname']
+  })
+end
+
+execute "nginx_restart" do
+  command "service nginx reload"
+  action :run
+end
+
 
 #setup upstart templates
 template "/etc/init/errbit.conf" do
@@ -106,8 +123,6 @@ template node[:errbit][:path] + "/config/unicorn.rb" do
     unicorn_workers: config_get['unicorn_workers']
   })
 end
-
-
 
 
 
