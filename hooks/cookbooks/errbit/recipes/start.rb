@@ -1,11 +1,6 @@
-service 'nginx' do
-  ignore_failure true
-  provider Chef::Provider::Service::Upstart
-  action :start
-end
 
 service 'nginx' do
-  action :reload
+  action :restart
   ignore_failure true
   provider Chef::Provider::Service::Upstart
 end
@@ -16,4 +11,6 @@ service 'errbit' do
   action :start
 end
 
-
+juju_Port "port[80]" do
+  action :open
+end

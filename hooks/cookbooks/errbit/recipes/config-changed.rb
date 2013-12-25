@@ -1,6 +1,6 @@
 
 #drop the templates
-template "/home/errbit/errbit/config/config.yml" do
+template node[:errbit][:path] + "/config/config.yml" do
   owner "errbit"
   group "errbit"
   mode "0660"
@@ -17,13 +17,13 @@ template "/home/errbit/errbit/config/config.yml" do
    })
 end
 
-  template "/home/errbit/errbit/config/mongoid.yml" do
+  template node[:errbit][:path] + "/config/mongoid.yml" do
     owner "errbit"
     group "errbit"
     mode "0660"
     source "mongoid.yml.erb"
     variables({ mongo_uri: "mongodb://localhost:27017/errbit" })
-    not_if { File.exists?("$CHARM_DIR/.mongodb") }
+    not_if { File.exists?("#{ENV['CHARM_DIR']}/.mongodb") }
   end
 
 #delete existing upstart templates if they exist
@@ -53,7 +53,7 @@ template "/etc/init/errbit-web.conf" do
 end
 
 
-template "/home/errbit/errbit/config/unicorn.rb" do
+template node[:errbit][:path] + "/config/unicorn.rb" do
   action :create
   owner 'errbit'
   group 'errbit'
@@ -87,14 +87,64 @@ link "/etc/nginx/sites-enabled/default" do
   action :delete
 end
 
-
-#Prep the post-deployment script to circumvent chef's personality conflicts
-template "/tmp/bundler.sh" do
+#this is a work around due to bundlers sandboxing
+template "/tmp/bundle_install.sh" do
   action :create
   owner 'errbit'
   group 'errbit'
-  mode 0777
+  mode '0755'
   source 'bundler.sh.erb'
+  variables({
+    path: node[:errbit][:path]
+    })
 end
 
-juju_log("Completed template generation")
+execute "/tmp/bundle_install.sh" do
+  user "errbit"
+  cwd node[:errbit][:path]
+  command "/tmp/bundle_install.sh"
+  action :run
+end
+
+bash "bundle_deploy" do
+  user "errbit"
+  cwd node[:errbit][:path]
+  code "/usr/bin/env bundle install --without test --deployment"
+end
+
+
+execute "generate_secret_token" do
+  user "root"
+  cwd node[:errbit][:path]
+  command "echo `sudo -u errbit -H bundle exec rake secret` > $CHARM_DIR/secret_token"
+  action :run
+  not_if { File.exists?("#{ENV['CHARM_DIR']}/secret_token")}
+end
+
+template node[:errbit][:path] + "/config/initializers/secret_token.rb" do
+  action :create
+  source 'secret_token.rb.erb'
+  owner "errbit"
+  group "errbit"
+  variables({
+    secret: `cat $CHARM_DIR/secret_token`
+    })
+end
+
+execute "Bootstrap errbit" do
+  user "errbit"
+  cwd node[:errbit][:path]
+  action :run
+  command "bundle exec rake errbit:bootstrap && touch #{node[:errbit][:path]}/.strapped"
+  environment ({'RAILS_ENV' => 'production'})
+  creates node[:errbit][:path] + "/.strapped"
+end
+
+execute "recompile_assets" do
+  user "errbit"
+  cwd node[:errbit][:path]
+  command "bundle exec rake assets:clean && bundle exec rake assets:precompile"
+  environment ({'RAILS_ENV' => 'production'})
+  ignore_failure true
+end
+

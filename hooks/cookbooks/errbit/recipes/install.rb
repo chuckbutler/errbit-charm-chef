@@ -28,6 +28,10 @@ package "nginx" do
   action :install
 end
 
+package "sendmail" do
+  action :install
+end
+
 user "errbit" do
   shell "/bin/bash"
   home "/home/errbit"
