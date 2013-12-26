@@ -1,300 +1,150 @@
-This repository contains a skeleton of Juju Charm that uses chef-solo for server configuration.
+Errbit
+--------
 
-This README assumes that you are familiar with Juju, Juju charms and Chef.
+This charm provides errbit from http://errbit.github.io/errbit/. Errbit is a tool for collecting and managing errors from other applications. It is Airbrake (formerly known as Hoptoad) API compliant, so if you are already using Airbrake, you can just point the airbrake gem to your Errbit server. The Airbrake protocol has agents for all major languages/frameworks: Ruby, PHP, Java, .Net, Python, and Node.js 
 
-# Conventions
 
-To add a hook you have to create a symlink to **stub** file
+Usage
+-----
 
-```shell
-ln -s stub hook_name
+#### Basic Usage
+
+To deploy the service:
+
+```
+    juju deploy errbit
 ```
 
-**stub** assumes that your service cookbook is cookbooks/charm_name and relation cookbooks are cookbooks/relation-name-relation (example: cookbooks/nginx and cookbooks/reverse-proxy-relation)
+By default this deploys the Errbit application Stack: Ruby 1.9.3, Nginx, Sendmail, MongoDB, and the Errbit Application.
 
-# Juju helpers
+You can then browse to http://ip-address to configure the service. 
 
-This charm provides **juju-helpers** cookbook which includes some libraries and definition you can use in your hooks:
 
-## Methods:
+The application is bootstrapped by default with an administrative user
 
-```ruby
-juju_unit_name # => ""
-juju_relation # => ""
-juju_remote_uni # => ""
-relation_ids(relation_name = nil) # => []
-relation_list(relation_id = nil) # => []
-relation_get(unit_name = nil, relation_id = nil) # => {}
-config_get # => {}
-unit_get(key) # => ""
-juju_log(text) # => ""
+```
+ Login: errbit@errbit.example.com
+	 Pass: password
 ```
 
-## Definitions:
+Use these credentials to create your new administrative user, and delete the default administrator.
 
-```ruby
-relation_set do
-  relation_id 'relation_id' # optional
-  variables({})
+You can validate your errbit installation in any rails app. 
+
+Ensure that you have the airbrake gem included in your Gemfile
+
+```
+gem 'airbrake' 
+```
+
+Then add the following to config/initializers/errbit.rb
+```
+Airbrake.configure do |config|
+  config.api_key = '123456'
+  config.host    = 'example.com'
+  config.port    = 80
+  config.secure  = config.port == 443
 end
 ```
+Respectively, change the api_key and config.host with the values provided from errbit.
 
-```ruby
-juju_port "port[/protocol]" do
-  action :open # or :close
-end
+### To Scale Up
+```
+juju deploy mongodb
+juju add-relation errbit mongodb
+juju add-unit errbit
 ```
 
-# Example
+This will deploy a MongoDB server, which is required for operating errbit with more than a single unit. 
 
-Here is example for Nginx charm that is able to work as a reverse proxy.
+**Note** This contains an experimental feature, Errbit will perform a mongodump to /mnt of the units MongoDB Data, then pre-load the MongoDB relationship with a copy of its data and purge the MongoDB-10gen package on the errbit units. 
 
-To start you have to clone this repo to your charms dir and rename it:
+### To Scale Down
 
-```shell
-cd ~/charms/precise
-git clone https://github.com/Altoros/juju-charm-chef
-mv juju-charm-chef nginx
-cd nginx
+```
+juju remove-unit errbit
 ```
 
-Edit **metadata.yaml**:
 
-```yaml
-name: nginx
-summary: Small, but very powerful and efficient web server and mail proxy
-maintainer: Pavel Pachkovskij <pavel.pachkovskij@altoros.com>
-description: |
-  <Multi-line description here>
-categories:
-  - cache-proxy
-requires:
-  reverse-proxy:
-    interface: http
+
+
+
+Configuration
+-------------
+
+**Default Administrative User**
+This charm deploys a default administrative user. These credentials should be used to create your administrative account, and disabled immediately.
+
+```
+	Login: errbit@errbit.example.com
+	Pass: password
 ```
 
-Add **config.yaml**:
+### Charm Configuration Options
 
-```yaml
-options:
-  port:
-    type: int
-    default: 80
-    description: Default nginx port.
-```
+#### Deploy Resource Configuration
+repository:
+Configures the repository to deploy Errbit from. Defaults to `https://github.com/errbit/errbit.git`
 
-Edit **CHARM_NAME** variable in **hooks/stub** file. It should match name of the Chef cookbook which would handle Juju hooks.
+release:
+The tag or branch to deploy from git. Defaults to `v0.2.0`
 
-```shell
-CHARM_NAME=nginx
-```
+#### Email Configuration
 
-Rename hooks/cookbooks/charm-name:
+By default Errbit ships with sendmail, and is configured to route email through the sendmail daemon. If you have other needs, such as routing your email through a company SMTP server, or hosted email service like Mandrill, these settings are for you.
 
-```shell
-mv hooks/cookbooks/charm-name hooks/cookbooks/nginx
-```
+use_sendmail:
+Blanket configuration option to route email through the Sendmail daemon.
 
-Edit **hooks/cookbooks/nginx/metadata.rb**:
+smtp_host:
+Fully qualified url to your SMTP server
 
-```ruby
-maintainer       "Altoros Systems, Inc."
-maintainer_email "pavel.pachkovskij@altoros.com"
-license          "GPL-3"
-description      "JuJu Helpers"
+smtp_domain:
+description: "Domain to send emails from"
 
-version          "0.1"
-name             "nginx"
-depends          "juju-helpers"
-```
+smtp_port:
+SMTP Port
 
-Edit **hooks/cookbooks/nginx/recipes/install.rb**:
+smtp_user:
+SMTP User to login to the SMTP Server and send email from
 
-```ruby
-package 'nginx' do
-  action :install
-end
+smtp_pass:
+SMTP Password
 
-juju_port config_get['port'] do
-  action :open
-end
-```
+smtp_starttls_auto:
+Start TLS authentication automatically
 
-Edit **hooks/cookbooks/nginx/recipes/start.rb**
+#### Application Configuration
+ 
+gravatar:
+Gravatar Image Set. Options are: mm, identicon, monsterid, wavatar, or retro. Defaults to identicon.
 
-```ruby
-service 'nginx' do
-  action :start
-end
-```
+hostname:
+Hostname used to access errbit, also used to populate the base URL in email and service notifications.
 
-Edit **hooks/cookbooks/nginx/recipes/stop.rb**
+unicorn_workers:
+Number of unicorn workers
 
-```ruby
-service 'nginx' do
-  action :stop
-end
-```
+debug:
+Enable debug level output from chef provisioner
 
-Create definition for nginx sites **hooks/cookbooks/nginx/definitions/nginx_site.rb**:
 
-```ruby
-define :nginx_site, :action => :enable do
-  site_available_path = "/etc/nginx/sites-available/#{params[:name]}"
-  site_enabled_path = "/etc/nginx/sites-enabled/#{params[:name]}"
+Errata
+-----------
 
-  if params[:action] == :enable
-    link site_enabled_path do
-      to site_available_path
-      not_if { File.exists?(site_enabled_path) }
-      only_if { File.exists?(site_available_path) }
-      action :create
-    end
-  elsif params[:action] == :disable
-    file site_enabled_path do
-      only_if { File.exists?(site_enabled_path) }
-      action :delete
-    end
-  end
-end
-```
+Currently the Data migration features are to be considered beta. The scripts only run mongodump and mongorestore on the mongodb-relation hooks. It is always a good idea to fetch backups before performing a migration with production data.
 
-Create site template **hooks/cookbooks/nginx/templates/default/site.conf.erb**:
+Currently there is no means to prevent the errbit sample administrative user from being re-created on unit scale. After scaling the service you will be required to log in and remove this sample user.
 
-```erb
-upstream reverse_proxy {
-<% @servers.each do |server| %>
-  server <%= server['hostname'] %>:<%= server['port'] %>;
-<% end %>
-}
+During the errbit-relation-joined phase, you may occasionally receive an error on the unit during the secret-token handoff. This happens when the MongoDB relationship hooks are executing during the same run-loop as the errbit relationship hooks are executing. Retry'ing the operation solves the error and propagates the secret-token successfully. 
 
-server {
-  listen <%= @port %> default_server;
+When scaling the unit up and down you will experience downtime and dropped connections. The deployment script currently does not version the running copy and execute a fork handoff. This feature is planned for a future iteration. 
 
-  keepalive_timeout 5;
+Contact Information
+-------------------
 
-  access_log /var/log/nginx.access.log;
-  error_log /var/log/nginx.error.log;
 
-  location / {
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header Host $http_host;
-    proxy_pass http://reverse_proxy;
-  }
-}
-```
+Author: Charles Butler <chuck@dasroot.net>
+Report bugs at: https://github.com/chuckbutler/errbit-charm-chef/issues
+Location: http://jujucharms.com/charms/precise/errbit
 
-Rename **hooks/cookbooks/relation-name-relation**:
-
-```shell
-mv hooks/cookbooks/relation-name-relation hooks/cookbooks/reverse-proxy-relation
-```
-
-Rename Juju hooks:
-
-```shell
-mv hooks/relation-name-relation-broken hooks/reverse-proxy-relation-broken
-mv hooks/relation-name-relation-changed hooks/reverse-proxy-relation-changed
-mv hooks/relation-name-relation-departed hooks/reverse-proxy-relation-departed
-mv hooks/relation-name-relation-joined hooks/reverse-proxy-relation-joined
-```
-
-To be able to use definitions from nginx cookbook add to **hooks/cookbooks/reverse-proxy-relation/metadata.rb**:
-
-```ruby
-maintainer       "Altoros Systems, Inc."
-maintainer_email "pavel.pachkovskij@altoros.com"
-license          "GPL-3"
-description      "JuJu Helpers"
-
-version          "0.1"
-name             "relation-name-relation"
-depends          "juju-helpers"
-depends          "nginx"
-```
-
-Edit **hooks/cookbooks/reverse-proxy-relation/recipes/changed.rb**
-
-```ruby
-servers = relation_list.map { |relation_id| relation_get(relation_id) }.reject do |server|
-  server['hostname'].blank? || server['port'].blank?
-end
-
-if servers.present?
-  template "/etc/nginx/sites-available/#{juju_relation}" do
-    cookbook 'nginx'
-    source 'site.conf.erb'
-    owner 'root'
-    group 'root'
-    variables({
-      servers: servers,
-      port: config_get['port']
-    })
-  end
-
-  nginx_site juju_relation do
-    action :enable
-  end
-
-  nginx_site 'default' do
-    action :disable
-  end
-
-  service 'nginx' do
-    action :restart
-  end
-end
-```
-
-Edit **hooks/cookbooks/reverse-proxy-relation/recipes/broken.rb**
-
-```ruby
-nginx_site juju_relation do
-  action :disable
-end
-
-nginx_site 'default' do
-  action :enable
-end
-
-service 'nginx' do
-  action :restart
-end
-```
-
-Edit **hooks/cookbooks/reverse-proxy-relation/recipes/departed.rb**
-
-```ruby
-servers = relation_list.map { |relation_id| relation_get(relation_id) }.reject do |server|
-  server['hostname'].blank? || server['port'].blank?
-end
-
-if servers.present?
-  template "/etc/nginx/sites-available/#{juju_relation}" do
-    cookbook 'nginx'
-    source 'site.conf.erb'
-    owner 'root'
-    group 'root'
-    variables({
-      servers: servers,
-      port: config_get['port']
-    })
-  end
-
-  service 'nginx' do
-    action :restart
-  end
-end
-```
-
-## Using it
-
-```shell
-juju bootstrap
-juju deploy wordpress
-juju deploy mysql
-juju deploy --repository ~/charms local:nginx
-juju add-relation wordpress mysql
-juju add-relation wordpress nginx
-juju expose nginx
-```
