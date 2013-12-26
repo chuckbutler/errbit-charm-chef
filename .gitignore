@@ -1,2 +1,4 @@
 hooks/cookbooks/relation-name-relation
 revision
+.bzr
+.bzrignore
