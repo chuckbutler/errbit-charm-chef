@@ -31,6 +31,10 @@ options:
     type: boolean
     default: true
     description: "Start TLS authentication automatically"
+  use_sendmail:
+    type: boolean
+    default: true
+    description: "Use local sendmail MTA"
   gravatar:
     type: string
     default: "identicon"
