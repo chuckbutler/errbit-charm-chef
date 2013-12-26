@@ -6,12 +6,12 @@ description: |
 categories:
   - application
 provides:
-    airbrake:
-        interface: airbrake
+  website:
+    interface: http
 requires:
-    mongodb:
-        interface: mongodb
-        optional: true
+  mongodb:
+      interface: mongodb
+      optional: true
 peers:
   errbit:
     interface: errbit
