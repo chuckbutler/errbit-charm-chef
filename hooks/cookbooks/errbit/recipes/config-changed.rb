@@ -3,6 +3,10 @@ class Chef::Recipe
   include AssetHelper
 end
 
+gem "bundler" do
+  action :install
+end
+
 
 #drop the templates
 template node[:errbit][:path] + "/config/config.yml" do
@@ -33,9 +37,9 @@ end
   end
 
 bash "bundle_deploy" do
-  user "errbit"
+  user "root"
   cwd node[:errbit][:path]
-  code "/usr/bin/env bundle install --without test --deployment"
+  code "sudo -u errbit -H bundle install --without development test --deployment"
 end
 
 execute "generate_secret_token" do
