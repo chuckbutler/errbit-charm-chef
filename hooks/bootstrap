@@ -3,11 +3,15 @@ set -e
 
 export HOOKS_DIR=$( cd "$( dirname "$0" )" && pwd)
 
+#Add the Ruby2 PPA to satisfy Errbit dependencies
+# Referenced: http://askubuntu.com/questions/261329/package-for-ruby-2-0-on-precise
+add-apt-repository -y ppa:brightbox/ruby-ng-experimental
+
 apt-get update
 
-sudo apt-get install -y ruby1.9.1 ruby1.9.1-dev \
-  rubygems1.9.1 irb1.9.1 ri1.9.1 rdoc1.9.1 \
-  build-essential libopenssl-ruby1.9.1 libssl-dev zlib1g-dev
+apt-get install -y \
+  ruby2.0 ruby2.0-dev \
+  build-essential libssl-dev zlib1g-dev
 
 gem install bundler --no-rdoc --no-ri
 
